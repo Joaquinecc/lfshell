@@ -5,6 +5,7 @@
 import os
 import subprocess
 import getpass
+import shutil
 
 
 class tcolors:
@@ -16,6 +17,42 @@ class tcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
+
+def psh_copiar(src_dst):
+    paths = src_dst.split(" ")
+    src = paths[0]
+    dst = paths[1]
+    try:
+        shutil.copy(src, dst)
+        print("copiar: "+src+" -> "+dst)
+    except Exception:
+        print(tcolors.WARNING + "copiar: no such file or directory" + tcolors.ENDC)
+        print(src + " " + dst)
+
+
+def psh_listar(path):
+    #path = command.replace("listar ", "", 1)
+    try:
+        dirs = os.listdir(path)
+        print(dirs)
+    except Exception:
+        print(tcolors.WARNING + "listar: no such file or directory: "+path+ tcolors.ENDC)
+
+
+def psh_ir(command):
+    path = command.replace("ir ", "", 1)
+    try:
+        if path == "~":
+            path = os.environ['HOME']
+        os.chdir(path)
+        print()
+    except Exception:
+        print(tcolors.WARNING + "ir: no such file or directory: " + path + tcolors.ENDC)
+
+
+#def service_daemons_command():
+
 
 
 def execute_command(command):
@@ -94,10 +131,18 @@ def main():
         inp = input(tcolors.BOLD+tcolors.OKGREEN+getpass.getuser()+tcolors.ENDC+tcolors.BOLD+":"+tcolors.OKBLUE+virgulilla_path()+tcolors.ENDC+"$ ")
         if inp == "exit":
             break
+        elif inp == "cd":
+            psh_cd(os.environ['HOME'])
         elif inp[:3] == "cd ":
             psh_cd(inp[3:])
         elif inp == "help":
             psh_help()
+        elif inp == "listar":
+            psh_listar(os.getcwd())
+        elif inp[:7] == "listar ":
+            psh_listar(inp[7:])
+        elif inp[:7] == "copiar ":
+            psh_copiar(inp[7:])
         else:
             execute_command(inp)
 
