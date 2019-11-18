@@ -4,6 +4,18 @@
 
 import os
 import subprocess
+import getpass
+
+
+class tcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
 
 def execute_command(command):
@@ -38,7 +50,7 @@ def execute_command(command):
                 try:
                     subprocess.run(cmd.strip().split())
                 except Exception:
-                    print("psh: command not found: {}".format(cmd.strip()))
+                    print(tcolors.WARNING+"psh: command not found: {}".format(cmd.strip())+tcolors.ENDC)
 
             # restaurar stdout y stdin
             os.dup2(s_in, 0)
@@ -48,7 +60,7 @@ def execute_command(command):
         else:
             subprocess.run(command.split(" "))
     except Exception:
-        print("psh: command not found: {}".format(command))
+        print(tcolors.WARNING+"psh: command not found: {}".format(command)+tcolors.ENDC)
 
 
 def psh_cd(path):
@@ -56,17 +68,30 @@ def psh_cd(path):
     try:
         os.chdir(os.path.abspath(path))
     except Exception:
-        print("cd: no such file or directory: {}".format(path))
+        print(tcolors.WARNING+"cd: no such file or directory: {}".format(path)+tcolors.ENDC)
 
 
 def psh_help():
-    print("""psh: shell implementation in Python.
-          Supports all basic shell commands.""")
+    print("""psh: shell implementation in Python3 version 1.0.1.
+Created by Lucas Martinez & Erik Wasmosy.
+Supports all basic shell commands.
+cd                      ls
+mkdir                   rmdir
+touch                   rm
+help                    exit
+""")
+
+
+def virgulilla_path():
+    fullpath=os.getcwd() # retorna el directorio actual
+    homedir = os.environ['HOME'] # retorna el directorio home
+    newpath = fullpath.replace(homedir,'~',1) # cambiamos el directorio home por ~
+    return newpath
 
 
 def main():
     while True:
-        inp = input("$ ")
+        inp = input(tcolors.BOLD+tcolors.OKGREEN+getpass.getuser()+tcolors.ENDC+tcolors.BOLD+":"+tcolors.OKBLUE+virgulilla_path()+tcolors.ENDC+"$ ")
         if inp == "exit":
             break
         elif inp[:3] == "cd ":
