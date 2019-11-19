@@ -19,6 +19,7 @@ class tcolors:
     UNDERLINE = '\033[4m'
 
 
+#1 comando para copiar (sin usar llamada al sistema)
 def psh_copiar(src_dst):
     paths = src_dst.split(" ")
     src = paths[0]
@@ -31,6 +32,19 @@ def psh_copiar(src_dst):
         print(src + " " + dst)
 
 
+#2 comando para mover
+def psh_mover(inp):
+    inp = inp.replace("mover", "mv", 1)
+    execute_command(inp)
+
+
+#3 comando para renombrar
+def psh_renombrar(inp):
+    inp = inp.replace("renombrar", "mv", 1)
+    execute_command(inp)
+
+
+#4 comando para listar un directorio
 def psh_listar(path):
     #path = command.replace("listar ", "", 1)
     try:
@@ -40,6 +54,13 @@ def psh_listar(path):
         print(tcolors.WARNING + "listar: no such file or directory: "+path+ tcolors.ENDC)
 
 
+#5 comando para crear un directorio
+def psh_creardir(inp):
+    inp = inp.replace("creardir", "mkdir", 1)
+    execute_command(inp)
+
+
+#6 comando para cambiar de directorio (sin usar llamada al sistema)
 def psh_ir(command):
     path = command.replace("ir ", "", 1)
     try:
@@ -51,8 +72,31 @@ def psh_ir(command):
         print(tcolors.WARNING + "ir: no such file or directory: " + path + tcolors.ENDC)
 
 
-#def service_daemons_command():
+#7 comando para cambiar los permisos de uno o mas archivos
+def psh_permisos(inp):
+    inp = inp.replace("permisos", "chmod", 1)
+    execute_command(inp)
 
+
+#8 comando para cambiar los propietarios de uno o mas archivos
+def psh_propietario(inp):
+    inp = inp.replace("propietario", "chown", 1)
+    execute_command(inp)
+
+
+#9 comando para cambiar la contrasena
+def psh_contrasena(inp):
+    inp = inp.replace("contrasena", "passwd", 1)
+    execute_command(inp)
+
+
+#10 comando para agregar un usuario
+def psh_usuario(inp):
+    inp = inp.replace("usuario", "useradd", 1)
+    execute_command(inp)
+
+
+#def service_daemons_command():
 
 
 def execute_command(command):
@@ -109,13 +153,36 @@ def psh_cd(path):
 
 
 def psh_help():
-    print("""psh: shell implementation in Python3 version 1.0.1.
-Created by Lucas Martinez & Erik Wasmosy.
-Supports all basic shell commands.
+    print("""
+   __    ___  __ _          _ _ 
+  / /   / __\/ _\ |__   ___| | |
+ / /   / _\  \ \| '_ \ / _ \ | |
+/ /___/ /    _\ \ | | |  __/ | |
+\____/\/     \__/_| |_|\___|_|_|
+                                v1.0.2
+                                
+psh: shell implementation in Python3
+Creado por Lucas Martinez & Erik Wasmosy.
+Soporta todos los comandos basicos de un shell de UNIX
+Por ejemplo:
 cd                      ls
 mkdir                   rmdir
 touch                   rm
 help                    exit
+
+Tambien soporta algunos comandos personalizados:
+copiar              Equivalente a 'cp'
+mover               Equivalente a 'mv'
+renombrar           
+listar              Equivalente a 'ls'
+creardir            Equivalente a 'mkdir'
+ir                  Equivalente a 'cd'
+permisos            Equivalente a 'chmod'
+propietario         Equivalente a 'chown'
+contrasena          Equivalente a 'passwd'
+usuario             Equivalente a 'useradd'
+ayuda               Equivalente a 'help'
+salir               Equivalente a 'exit'
 """)
 
 
@@ -129,13 +196,13 @@ def virgulilla_path():
 def main():
     while True:
         inp = input(tcolors.BOLD+tcolors.OKGREEN+getpass.getuser()+tcolors.ENDC+tcolors.BOLD+":"+tcolors.OKBLUE+virgulilla_path()+tcolors.ENDC+"$ ")
-        if inp == "exit":
+        if inp == "exit" or inp == "salir":
             break
         elif inp == "cd":
             psh_cd(os.environ['HOME'])
         elif inp[:3] == "cd ":
             psh_cd(inp[3:])
-        elif inp == "help":
+        elif inp == "help" or inp == "ayuda":
             psh_help()
         elif inp == "listar":
             psh_listar(os.getcwd())
@@ -143,6 +210,20 @@ def main():
             psh_listar(inp[7:])
         elif inp[:7] == "copiar ":
             psh_copiar(inp[7:])
+        elif inp[:6] == "mover ":
+            psh_mover(inp)
+        elif inp[:10] == "renombrar ":
+            psh_renombrar(inp)
+        elif inp[:9] == "creardir ":
+            psh_creardir(inp)
+        elif inp[:9] == "permisos ":
+            psh_permisos(inp)
+        elif inp[:12] == "propietario ":
+            psh_propietario(inp)
+        elif inp[:11] == "contrasena ":
+            psh_contrasena(inp)
+        elif inp[:8] == "usuario ":
+            psh_usuario(inp)
         else:
             execute_command(inp)
 
