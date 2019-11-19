@@ -6,7 +6,8 @@ import os
 import subprocess
 import getpass
 import shutil
-
+import itertools
+from datetime import datetime
 
 class tcolors:
     HEADER = '\033[95m'
@@ -48,8 +49,9 @@ def psh_renombrar(inp):
 def psh_listar(path):
     #path = command.replace("listar ", "", 1)
     try:
-        dirs = os.listdir(path)
-        print(dirs)
+        dl = os.listdir(path)
+        for t in itertools.zip_longest(dl[::2],dl[1::2],fillvalue=""):
+          print(("{:<35} {:<35}").format(*t))
     except Exception:
         print(tcolors.WARNING + "listar: no such file or directory: "+path+ tcolors.ENDC)
 
@@ -61,13 +63,14 @@ def psh_creardir(inp):
 
 
 #6 comando para cambiar de directorio (sin usar llamada al sistema)
-def psh_ir(command):
-    path = command.replace("ir ", "", 1)
+def psh_ir(path):
+    #path = command.replace("ir ", "", 1)
     try:
+        #print(path)
         if path == "~":
             path = os.environ['HOME']
         os.chdir(path)
-        print()
+        #print()
     except Exception:
         print(tcolors.WARNING + "ir: no such file or directory: " + path + tcolors.ENDC)
 
@@ -97,9 +100,22 @@ def psh_usuario(inp):
 
 
 #def service_daemons_command():
+def write_shell_log(inp):
+    info = datetime.now().strftime("(%Y-%m-%d %H:%M:%S)")+" "+inp
+    f = open("/var/log/shell_log.log","a")
+    f.write(info+"\n")
+    f.close()
+
+
+def write_errores_sistema_log(inp):
+    info = datetime.now().strftime("(%Y-%m-%d %H:%M:%S)")+" "+inp
+    f = open("/var/log/errores_sistema.log","a")
+    f.write(info+"\n")
+    f.close()
 
 
 def execute_command(command):
+    ret = 0
     """execute commands and handle piping"""
     try:
         if "|" in command:
@@ -129,9 +145,12 @@ def execute_command(command):
                 os.close(fdout)
 
                 try:
-                    subprocess.run(cmd.strip().split())
+                    retaux = subprocess.run(cmd.strip().split())
+                    if(retaux.returncode != 0):
+                      ret = 1
                 except Exception:
                     print(tcolors.WARNING+"psh: command not found: {}".format(cmd.strip())+tcolors.ENDC)
+                    ret = 1
 
             # restaurar stdout y stdin
             os.dup2(s_in, 0)
@@ -139,9 +158,14 @@ def execute_command(command):
             os.close(s_in)
             os.close(s_out)
         else:
-            subprocess.run(command.split(" "))
+            retaux = subprocess.run(command.split(" "))
+            if retaux.returncode != 0:
+              ret = 1
+
     except Exception:
         print(tcolors.WARNING+"psh: command not found: {}".format(command)+tcolors.ENDC)
+        ret = 1
+    return ret
 
 
 def psh_cd(path):
@@ -160,7 +184,7 @@ def psh_help():
 / /___/ /    _\ \ | | |  __/ | |
 \____/\/     \__/_| |_|\___|_|_|
                                 v1.0.2
-                                
+
 psh: shell implementation in Python3
 Creado por Lucas Martinez & Erik Wasmosy.
 Soporta todos los comandos basicos de un shell de UNIX
@@ -204,6 +228,8 @@ def main():
             psh_cd(inp[3:])
         elif inp == "help" or inp == "ayuda":
             psh_help()
+        elif inp[:3] == "ir ":
+            psh_ir(inp[3:])
         elif inp == "listar":
             psh_listar(os.getcwd())
         elif inp[:7] == "listar ":
@@ -225,7 +251,14 @@ def main():
         elif inp[:8] == "usuario ":
             psh_usuario(inp)
         else:
-            execute_command(inp)
+           ret=execute_command(inp)
+           if ret == 0:
+             write_shell_log(inp)
+             #print("registrado")
+             #print(ret)
+           else:
+             #print("error registrado")
+             write_errores_sistema_log(inp)
 
 
 if '__main__' == __name__:
