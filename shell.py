@@ -27,6 +27,8 @@ def psh_copiar(src_dst):
 Copia el archivo o directorio especificado en <PATH_ARCHIVO> en <PATH_DESTINO>
 """)
     else:
+        msg_ok = "copiar "+src_dst
+        msg_err = "copiar: no such file or directory, or directory already exists: "+src_dst
         paths = src_dst.split(" ")
 
         src = path_formater(paths[0])
@@ -41,9 +43,11 @@ Copia el archivo o directorio especificado en <PATH_ARCHIVO> en <PATH_DESTINO>
                     dst = dst + "/" + name[1]
                 shutil.copytree(src, dst)
                 print("copiar: " + src + " -> " + dst)
+                write_shell_log(msg_ok)
             except Exception:
-                print(tcolors.WARNING + "copiar: no such file or directory" + tcolors.ENDC)
+                print(tcolors.WARNING + "copiar: no such file or directory:" + tcolors.ENDC)
                 print(src + " " + dst)
+                write_errores_sistema_log(msg_err)
 
 
 #2 comando para mover
@@ -53,8 +57,14 @@ def psh_mover(inp):
 Mueve el archivo o directorio especificado en <PATH_ARCHIVO> a <PATH_DESTINO>
 """)
     else:
+        msg_ok = inp
+        msg_err = "mover: no existe el archivo o directorio: " + inp.replace("mover", "", 1)
         inp = inp.replace("mover", "mv", 1)
-        execute_command(inp)
+        ret = execute_command(inp)
+        if ret == 0:
+            write_shell_log(msg_ok)
+        else:
+            write_errores_sistema_log(msg_err)
 
 
 #3 comando para renombrar
@@ -64,8 +74,14 @@ def psh_renombrar(inp):
 Renombra el archivo o directorio especificado en <PATH_ARCHIVO> a <NUEVO_NOMBRE>
 """)
     else:
+        msg_ok = inp
+        msg_err = "renombrar: no existe el archivo o directorio: "+ inp.replace("renombrar", "", 1)
         inp = inp.replace("renombrar", "mv", 1)
-        execute_command(inp)
+        ret = execute_command(inp)
+        if ret == 0:
+            write_shell_log(msg_ok)
+        else:
+            write_errores_sistema_log(msg_err)
 
 
 #4 comando para listar un directorio
@@ -75,14 +91,18 @@ def psh_listar(path):
 Lista en pantalla los directorios ubicados dentro del directorio especificado en <PATH_DIRECTORIO>
 """)
     else:
+        msg_ok = "listar "+path
+        msg_err = "listar: no existe el directorio: " + path
         #path = command.replace("listar ", "", 1)
         path = path_formater(path)
         try:
             dl = os.listdir(path)
             for t in itertools.zip_longest(dl[::2],dl[1::2],fillvalue=""):
               print(("{:<35} {:<35}").format(*t))
+            write_shell_log(msg_ok)
         except Exception:
             print(tcolors.WARNING + "listar: no such file or directory: "+path+ tcolors.ENDC)
+            write_errores_sistema_log(msg_err)
 
 
 #5 comando para crear un directorio
@@ -92,8 +112,14 @@ def psh_creardir(inp):
 Crea un nuevo directorio <PATH_DIRECTORIO>
 """)
     else:
+        msg_ok = inp
+        msg_err = "creardir: el directorio ya existe: "+ inp.replace("creardir", "", 1)
         inp = inp.replace("creardir", "mkdir", 1)
-        execute_command(inp)
+        ret = execute_command(inp)
+        if ret == 0:
+            write_shell_log(msg_ok)
+        else:
+            write_errores_sistema_log(msg_err)
 
 
 #6 comando para cambiar de directorio (sin usar llamada al sistema)
@@ -103,12 +129,16 @@ def psh_ir(path):
 Cambia el directorio donde se encuentra al directorio <PATH_DIRECTORIO>
 """)
     else:
+        msg_ok = "ir: " + path
+        msg_err = "ir: no existe el directorio o es un archivo: " + path
         #path = command.replace("ir ", "", 1)
         path = path_formater(path)
         try:
             os.chdir(path)
+            write_shell_log(msg_ok)
         except Exception:
             print(tcolors.WARNING + "ir: no such file or directory: " + path + tcolors.ENDC)
+            write_errores_sistema_log(msg_err)
 
 
 #7 comando para cambiar los permisos de uno o mas archivos
@@ -118,8 +148,14 @@ def psh_permisos(inp):
 Cambia los permisos de cada archivo <ARCHIVO> a <PERMISOS>
 """)
     else:
+        msg_ok = inp
+        msg_err = "permisos: ha ocurrido un error: " + inp
         inp = inp.replace("permisos", "chmod", 1)
-        execute_command(inp)
+        ret = execute_command(inp)
+        if ret == 0:
+            write_shell_log(msg_ok)
+        else:
+            write_errores_sistema_log(msg_err)
 
 
 #8 comando para cambiar los propietarios de uno o mas archivos
@@ -129,8 +165,14 @@ def psh_propietario(inp):
 Cambia el propietario o grupo de cada archivo <ARCHIVO> a <Propietario_O_GRUPO>
 """)
     else:
+        msg_ok = inp
+        msg_err = "propietario: ha ocurrido un error: " + inp
         inp = inp.replace("propietario", "chown", 1)
-        execute_command(inp)
+        ret = execute_command(inp)
+        if ret == 0:
+            write_shell_log(msg_ok)
+        else:
+            write_errores_sistema_log(msg_err)
 
 
 #9 comando para cambiar la contrasena
@@ -138,8 +180,14 @@ def psh_contrasena(inp):
     if inp == "contrasena --ayuda":
         print()
     else:
+        msg_ok = inp
+        msg_err = "contrasena: ha ocurrido un error"
         inp = inp.replace("contrasena", "passwd", 1)
-        execute_command(inp)
+        ret = execute_command(inp)
+        if ret == 0:
+            write_shell_log(msg_ok)
+        else:
+            write_errores_sistema_log(msg_err)
 
 
 #10 comando para agregar un usuario
@@ -149,20 +197,26 @@ def psh_usuario(inp):
 Cambia la contrasenha del usuario actual
 """)
     else:
+        msg_ok = inp
+        msg_err = "usuario: ha ocurrido un error"
         inp = inp.replace("usuario", "useradd", 1)
-        execute_command(inp)
+        ret = execute_command(inp)
+        if ret == 0:
+            write_shell_log(msg_ok)
+        else:
+            write_errores_sistema_log(msg_err)
 
 
 #def service_daemons_command():
 def write_shell_log(inp):
-    info = datetime.now().strftime("(%Y-%m-%d %H:%M:%S)")+" "+inp
+    info = datetime.now().strftime("(%Y-%m-%d %H:%M:%S)")+" ["+getpass.getuser()+"] "+inp
     f = open("/var/log/shell_log.log","a")
     f.write(info+"\n")
     f.close()
 
 
 def write_errores_sistema_log(inp):
-    info = datetime.now().strftime("(%Y-%m-%d %H:%M:%S)")+" "+inp
+    info = datetime.now().strftime("(%Y-%m-%d %H:%M:%S)")+" ["+getpass.getuser()+"] "+inp
     f = open("/var/log/errores_sistema.log","a")
     f.write(info+"\n")
     f.close()
@@ -295,6 +349,8 @@ def main():
             psh_help()
         elif inp[:3] == "ir ":
             psh_ir(inp[3:])
+        elif inp == "ir":
+            psh_cd(os.environ['HOME'])
         elif inp == "listar":
             psh_listar(os.getcwd())
         elif inp[:7] == "listar ":
