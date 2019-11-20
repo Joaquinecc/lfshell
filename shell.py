@@ -7,6 +7,8 @@ import subprocess
 import getpass
 import shutil
 import itertools
+#import daemon
+import signal
 from datetime import datetime
 
 class tcolors:
@@ -178,7 +180,9 @@ Cambia el propietario o grupo de cada archivo <ARCHIVO> a <Propietario_O_GRUPO>
 #9 comando para cambiar la contrasena
 def psh_contrasena(inp):
     if inp == "contrasena --ayuda":
-        print()
+        print("""Uso: contrasena
+Cambia la contrasenha del usuario actual
+""")
     else:
         msg_ok = inp
         msg_err = "contrasena: ha ocurrido un error"
@@ -193,21 +197,66 @@ def psh_contrasena(inp):
 #10 comando para agregar un usuario
 def psh_usuario(inp):
     if inp == "usuario --ayuda":
-        print("""Uso: contrasena
-Cambia la contrasenha del usuario actual
+        print("""Uso: usuario <HORA_ENTRADA> <HORA_SALIDA> <IP>[,<IP>]... <NOMBRE_USUARIO>
+Agrega un usuario nuevo con horario y una o mas ip de acceso
+<HORA_ENTRADA> y <HORA_SALIDA> en formato HH:MM
 """)
     else:
         msg_ok = inp
         msg_err = "usuario: ha ocurrido un error"
-        inp = inp.replace("usuario", "useradd", 1)
-        ret = execute_command(inp)
+        inp_arr = inp.split(" ")
+        #luego de separar la string : inp_arr[0] = usuario ; inp_arr[1] = hora inicio ;
+        # inp_arr[2] = hora de salida; inp_arr[3]... = las IPs ; inp_arr[N] = el nombre del usuario
+        nip = len(inp_arr) - 1
+        conjunto_ip = ""
+        for ip in range(3,nip):
+            conjunto_ip = conjunto_ip + inp_arr[ip] +","
+        conjunto_ip = conjunto_ip[:-1]
+        inp = "useradd -c " + "\"Horario " + inp_arr[1].replace(":", "") +"-"+ inp_arr[2].replace(":", "") + " IPs " + conjunto_ip + "\" " + inp_arr[nip]
+        #inp2 = inp2.replace("usuario", "useradd -c", 1)
+        #print(inp)
+        ret = os.system(inp)
+        #ret = execute_command(inp)
         if ret == 0:
             write_shell_log(msg_ok)
         else:
             write_errores_sistema_log(msg_err)
 
 
-#def service_daemons_command():
+#11 levantar y apagar demonios (sin usar la llamada al sistema: service)
+def psh_demonio(action_pid):
+    if action_pid == "--ayuda":
+        print("""Uso: demonio levantar <ACCION>
+demonio apagar <PID>
+El primero: levanta o ejecuta <ACCION> como un demonio.
+El segundo: termina el proceso con PID <PID>. 
+""")
+    else:
+        try:
+            if action_pid[:9] == "levantar ":
+                params = action_pid[9:]
+                params_arr = params.split(" ")
+                #with daemon.DaemonContext():
+                subprocess.Popen(params_arr)
+
+            elif action_pid[:7] == "apagar ":
+                pid = int(action_pid[7:])
+                os.kill(pid, signal.SIGTERM)
+                os.kill(pid, signal.SIGKILL)
+            else:
+                print(tcolors.WARNING + "demonio: accion no encontrada: "+action_pid.split(" ", 1)[0] + tcolors.ENDC)
+        except Exception as e:
+            print(e)
+
+
+#14 transferencia ftp o scp y registrar en el Shell_transferencias.log
+def psh_scp_ftp(inp):
+    params = inp[4:]
+    command = inp[:3]
+    write_shell_transferencias_log(inp)
+    subprocess.Popen([command, params])
+
+
 def write_shell_log(inp):
     info = datetime.now().strftime("(%Y-%m-%d %H:%M:%S)")+" ["+getpass.getuser()+"] "+inp
     f = open("/var/log/shell_log.log","a")
@@ -219,6 +268,13 @@ def write_errores_sistema_log(inp):
     info = datetime.now().strftime("(%Y-%m-%d %H:%M:%S)")+" ["+getpass.getuser()+"] "+inp
     f = open("/var/log/errores_sistema.log","a")
     f.write(info+"\n")
+    f.close()
+
+
+def write_shell_transferencias_log(inp):
+    info = datetime.now().strftime("(%Y-%m-%d %H:%M:%S)") + " [" + getpass.getuser() + "] " + inp
+    f = open("/var/log/Shell_transferencias.log", "a")
+    f.write(info + "\n")
     f.close()
 
 
@@ -291,7 +347,7 @@ def psh_help():
  / /   / _\  \ \| '_ \ / _ \ | |
 / /___/ /    _\ \ | | |  __/ | |
 \____/\/     \__/_| |_|\___|_|_|
-                                v1.0.2
+                                v1.0.9
 
 psh: shell implementation in Python3
 Creado por Lucas Martinez & Erik Wasmosy.
@@ -317,6 +373,9 @@ contrasena          Equivalente a 'passwd'. Cambia la contrasenha del usuario
 usuario             Equivalente a 'useradd' pero tambien agrega horario e ip's esperadas del usuario 
 ayuda               Equivalente a 'help'. Despliega un menu de ayuda (el que se encuentra viendo actualmente)
 salir               Equivalente a 'exit'. Cierra/termina la linea de comando (usar solo si tiene interfaz grafica)
+demonio             Permite levantar o apagar un demonio
+scp                 Transferencia scp
+ftp                 Transferencia ftp
 
 Para mas ayuda con estos comandos: <comando> --ayuda
 """)
@@ -371,6 +430,13 @@ def main():
             psh_contrasena(inp)
         elif inp[:8] == "usuario ":
             psh_usuario(inp)
+        elif inp[:4] == "scp " or inp[:4] == "ftp ":
+            psh_scp_ftp(inp)
+        elif inp[:8] == "demonio ":
+            psh_demonio(inp[8:])
+        elif inp == "":
+            #para que no diga "comando no encontrado" cuando el usuario solamente presiona enter
+            fghjlfkhjg = 1 #no hace nada, esta puesto para cumplir con la sintaxis de python
         else:
            ret = execute_command(inp)
            if ret == 0:
