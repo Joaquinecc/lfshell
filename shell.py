@@ -22,81 +22,128 @@ class tcolors:
 
 #1 comando para copiar (sin usar llamada al sistema)
 def psh_copiar(src_dst):
-    paths = src_dst.split(" ")
-    src = paths[0]
-    dst = paths[1]
-    try:
-        shutil.copy(src, dst)
-        print("copiar: "+src+" -> "+dst)
-    except Exception:
-        print(tcolors.WARNING + "copiar: no such file or directory" + tcolors.ENDC)
-        print(src + " " + dst)
+    if src_dst == "--ayuda":
+        print("""Uso: copiar <PATH_ARCHIVO> <PATH_DESTINO>
+Copia el archivo o directorio especificado en <PATH_ARCHIVO> en <PATH_DESTINO>
+""")
+    else:
+        paths = src_dst.split(" ")
+
+        src = path_formater(paths[0])
+        dst = path_formater(paths[1])
+        try:
+            shutil.copy(src, dst)
+            print("copiar: "+src+" -> "+dst)
+        except Exception:
+            print(tcolors.WARNING + "copiar: no such file or directory" + tcolors.ENDC)
+            print(src + " " + dst)
 
 
 #2 comando para mover
 def psh_mover(inp):
-    inp = inp.replace("mover", "mv", 1)
-    execute_command(inp)
+    if inp == "mover --ayuda":
+        print("""Uso: mover <PATH_ARCHIVO> <PATH_DESTINO>
+Mueve el archivo o directorio especificado en <PATH_ARCHIVO> a <PATH_DESTINO>
+""")
+    else:
+        inp = inp.replace("mover", "mv", 1)
+        execute_command(inp)
 
 
 #3 comando para renombrar
 def psh_renombrar(inp):
-    inp = inp.replace("renombrar", "mv", 1)
-    execute_command(inp)
+    if inp == "renombrar --ayuda":
+        print("""Uso: renombrar <PATH_ARCHIVO> <NUEVO_NOMBRE>
+Renombra el archivo o directorio especificado en <PATH_ARCHIVO> a <NUEVO_NOMBRE>
+""")
+    else:
+        inp = inp.replace("renombrar", "mv", 1)
+        execute_command(inp)
 
 
 #4 comando para listar un directorio
 def psh_listar(path):
-    #path = command.replace("listar ", "", 1)
-    try:
-        dl = os.listdir(path)
-        for t in itertools.zip_longest(dl[::2],dl[1::2],fillvalue=""):
-          print(("{:<35} {:<35}").format(*t))
-    except Exception:
-        print(tcolors.WARNING + "listar: no such file or directory: "+path+ tcolors.ENDC)
+    if path == "--ayuda":
+        print("""Uso: listar <PATH_DIRECTORIO>
+Lista en pantalla los directorios ubicados dentro del directorio especificado en <PATH_DIRECTORIO>
+""")
+    else:
+        #path = command.replace("listar ", "", 1)
+        path = path_formater(path)
+        try:
+            dl = os.listdir(path)
+            for t in itertools.zip_longest(dl[::2],dl[1::2],fillvalue=""):
+              print(("{:<35} {:<35}").format(*t))
+        except Exception:
+            print(tcolors.WARNING + "listar: no such file or directory: "+path+ tcolors.ENDC)
 
 
 #5 comando para crear un directorio
 def psh_creardir(inp):
-    inp = inp.replace("creardir", "mkdir", 1)
-    execute_command(inp)
+    if inp == "creardir --ayuda":
+        print("""Uso: creardir <PATH_DIRECTORIO>
+Crea un nuevo directorio <PATH_DIRECTORIO>
+""")
+    else:
+        inp = inp.replace("creardir", "mkdir", 1)
+        execute_command(inp)
 
 
 #6 comando para cambiar de directorio (sin usar llamada al sistema)
 def psh_ir(path):
-    #path = command.replace("ir ", "", 1)
-    try:
-        #print(path)
-        if path == "~":
-            path = os.environ['HOME']
-        os.chdir(path)
-        #print()
-    except Exception:
-        print(tcolors.WARNING + "ir: no such file or directory: " + path + tcolors.ENDC)
+    if path == "--ayuda":
+        print("""Uso: ir <PATH_DIRECTORIO>
+Cambia el directorio donde se encuentra al directorio <PATH_DIRECTORIO>
+""")
+    else:
+        #path = command.replace("ir ", "", 1)
+        path = path_formater(path)
+        try:
+            os.chdir(path)
+        except Exception:
+            print(tcolors.WARNING + "ir: no such file or directory: " + path + tcolors.ENDC)
 
 
 #7 comando para cambiar los permisos de uno o mas archivos
 def psh_permisos(inp):
-    inp = inp.replace("permisos", "chmod", 1)
-    execute_command(inp)
+    if inp == "permisos --ayuda":
+        print("""Uso: permisos <PERMISOS>[,<PERMISOS>]... <ARCHIVO>...
+Cambia los permisos de cada archivo <ARCHIVO> a <PERMISOS>
+""")
+    else:
+        inp = inp.replace("permisos", "chmod", 1)
+        execute_command(inp)
 
 
 #8 comando para cambiar los propietarios de uno o mas archivos
 def psh_propietario(inp):
-    inp = inp.replace("propietario", "chown", 1)
-    execute_command(inp)
+    if inp == "propietario --ayuda":
+        print("""Uso: propietario <PROPIETARIO_O_GRUPO> <ARCHIVO>...
+Cambia el propietario o grupo de cada archivo <ARCHIVO> a <Propietario_O_GRUPO>
+""")
+    else:
+        inp = inp.replace("propietario", "chown", 1)
+        execute_command(inp)
 
 
 #9 comando para cambiar la contrasena
 def psh_contrasena(inp):
-    inp = inp.replace("contrasena", "passwd", 1)
-    execute_command(inp)
+    if inp == "contrasena --ayuda":
+        print()
+    else:
+        inp = inp.replace("contrasena", "passwd", 1)
+        execute_command(inp)
 
 
 #10 comando para agregar un usuario
 def psh_usuario(inp):
-    inp = inp.replace("usuario", "useradd", 1)
-    execute_command(inp)
+    if inp == "usuario --ayuda":
+        print("""Uso: contrasena
+Cambia la contrasenha del usuario actual
+""")
+    else:
+        inp = inp.replace("usuario", "useradd", 1)
+        execute_command(inp)
 
 
 #def service_daemons_command():
@@ -194,19 +241,23 @@ mkdir                   rmdir
 touch                   rm
 help                    exit
 
+Para mas ayuda con estos comandos: <comando> --help o <comando> -h
+
 Tambien soporta algunos comandos personalizados:
-copiar              Equivalente a 'cp'
-mover               Equivalente a 'mv'
-renombrar           
-listar              Equivalente a 'ls'
-creardir            Equivalente a 'mkdir'
-ir                  Equivalente a 'cd'
-permisos            Equivalente a 'chmod'
-propietario         Equivalente a 'chown'
-contrasena          Equivalente a 'passwd'
-usuario             Equivalente a 'useradd'
-ayuda               Equivalente a 'help'
-salir               Equivalente a 'exit'
+copiar              Equivalente a 'cp'. Copia un archivo o un directorio completo a la ubicacion especificada
+mover               Equivalente a 'mv'. Mueva la ubicacion de un archivo o de un directorio completo
+renombrar           Renombra un archivo.
+listar              Equivalente a 'ls'. Lista todos los directorios que se encuentran edentro de cierto directorio mencionado
+creardir            Equivalente a 'mkdir'. Crea un directorio en un lugar especificado.
+ir                  Equivalente a 'cd'. Cambia de directorio al directorio especificado
+permisos            Equivalente a 'chmod'. Cambia los permisos de uno o mas archivos
+propietario         Equivalente a 'chown'. Cambia el usuario duenho de un archivo
+contrasena          Equivalente a 'passwd'. Cambia la contrasenha del usuario
+usuario             Equivalente a 'useradd' pero tambien agrega horario e ip's esperadas del usuario 
+ayuda               Equivalente a 'help'. Despliega un menu de ayuda (el que se encuentra viendo actualmente)
+salir               Equivalente a 'exit'. Cierra/termina la linea de comando (usar solo si tiene interfaz grafica)
+
+Para mas ayuda con estos comandos: <comando> --ayuda
 """)
 
 
@@ -214,6 +265,13 @@ def virgulilla_path():
     fullpath=os.getcwd() # retorna el directorio actual
     homedir = os.environ['HOME'] # retorna el directorio home
     newpath = fullpath.replace(homedir,'~',1) # cambiamos el directorio home por ~
+    return newpath
+
+def path_formater(path):
+    homedir = os.environ['HOME']  # retorna el directorio home
+    newpath = path.replace('~',homedir, 1)
+    if newpath[1] != "/":
+        newpath = os.getcwd() + "/"+ newpath
     return newpath
 
 
@@ -251,13 +309,10 @@ def main():
         elif inp[:8] == "usuario ":
             psh_usuario(inp)
         else:
-           ret=execute_command(inp)
+           ret = execute_command(inp)
            if ret == 0:
              write_shell_log(inp)
-             #print("registrado")
-             #print(ret)
            else:
-             #print("error registrado")
              write_errores_sistema_log(inp)
 
 
