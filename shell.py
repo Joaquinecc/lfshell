@@ -35,8 +35,15 @@ Copia el archivo o directorio especificado en <PATH_ARCHIVO> en <PATH_DESTINO>
             shutil.copy(src, dst)
             print("copiar: "+src+" -> "+dst)
         except Exception:
-            print(tcolors.WARNING + "copiar: no such file or directory" + tcolors.ENDC)
-            print(src + " " + dst)
+            try:
+                if os.path.isdir(dst):
+                    name = src.rsplit("/", 1)
+                    dst = dst + "/" + name[1]
+                shutil.copytree(src, dst)
+                print("copiar: " + src + " -> " + dst)
+            except Exception:
+                print(tcolors.WARNING + "copiar: no such file or directory" + tcolors.ENDC)
+                print(src + " " + dst)
 
 
 #2 comando para mover
@@ -270,7 +277,7 @@ def virgulilla_path():
 def path_formater(path):
     homedir = os.environ['HOME']  # retorna el directorio home
     newpath = path.replace('~',homedir, 1)
-    if newpath[1] != "/":
+    if newpath[:1] != "/":
         newpath = os.getcwd() + "/"+ newpath
     return newpath
 
