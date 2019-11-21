@@ -22,7 +22,7 @@ class tcolors:
     UNDERLINE = '\033[4m'
 
 
-#1 comando para copiar (sin usar llamada al sistema)
+#1 comando para copiar (sin usar la llamada al sistema cp)
 def psh_copiar(src_dst):
     if src_dst == "--ayuda":
         print("""Uso: copiar <PATH_ARCHIVO> <PATH_DESTINO>
@@ -124,7 +124,7 @@ Crea un nuevo directorio <PATH_DIRECTORIO>
             write_errores_sistema_log(msg_err)
 
 
-#6 comando para cambiar de directorio (sin usar llamada al sistema)
+#6 comando para cambiar de directorio (sin usar la llamada al sistema cd)
 def psh_ir(path):
     if path == "--ayuda":
         print("""Uso: ir <PATH_DIRECTORIO>
