@@ -9,6 +9,7 @@ import shutil
 import itertools
 #import daemon
 import signal
+import socket
 from datetime import datetime
 
 class tcolors:
@@ -218,6 +219,8 @@ Agrega un usuario nuevo con horario y una o mas ip de acceso
         ret = os.system(inp)
         #ret = execute_command(inp)
         if ret == 0:
+            personal_h = inp_arr[nip]+" Horario " + inp_arr[1].replace(":", "") + "-" + inp_arr[2].replace(":","") + " IPs " + conjunto_ip
+            write_personal_h_log(personal_h)
             write_shell_log(msg_ok)
         else:
             write_errores_sistema_log(msg_err)
@@ -278,6 +281,63 @@ def write_shell_transferencias_log(inp):
     f.close()
 
 
+def write_personal_h_log(inp):
+    f = open("/var/log/personal_h.log", "a")
+    f.write(inp + "\n")
+    f.close()
+
+
+def read_personal_h_log(usr):
+    f = open("/var/log/personal_h.log", "r")
+    content = f.readline()
+    with f as openfileobject:
+        for line in openfileobject:
+            exists = line.find(usr)
+            if exists != -1:
+                return line
+    return ""
+
+
+def write_personal_horario_log(log_in_out, usr):
+    f = open("/var/log/personal_horarios_log.log", "a")
+    now = datetime.now().strftime("%H:%M")
+    curr_ip = socket.gethostbyname(socket.gethostname())
+    usr_info = read_personal_h_log(usr).split(" ")
+    if usr_info == "" or usr_info == "\n":
+        if log_in_out == "login":
+            f.write("[" + usr + "] " + now)
+        else:
+            f.write(now + "\n\n")
+    else:
+        h_entrada = int(usr_info[2].split("-")[0])
+        h_salida = int(usr_info[2].split("-")[1])
+        ips = usr_info[4].split(",")
+        int_now = int(now.replace(":",""))
+        info = ""
+        if log_in_out == "login":
+            info = info + "[" + usr + "] Ip: " + curr_ip + " "
+            ip_match = False
+            for ip in ips:
+                if ip == curr_ip:
+                    ip_match = True
+                    break
+            if not ip_match:
+                info = info + "(La Ip no coincide con su lista de IPs permitidas) "
+
+            if h_entrada <= int_now <= h_salida:
+                info = info + "Horas: " + now + " "
+            else:
+                info = info + "Horas: " + now + " (Login fuera de horario) "
+            f.write(info)
+        else:
+            if h_entrada <= int_now <= h_salida:
+                info = info + now
+            else:
+                info = info + now + " (Logout fuera de horario)"
+            f.write(info + "\n")
+    f.close()
+
+
 def execute_command(command):
     ret = 0
     """execute commands and handle piping"""
@@ -310,7 +370,7 @@ def execute_command(command):
 
                 try:
                     retaux = subprocess.run(cmd.strip().split())
-                    if(retaux.returncode != 0):
+                    if retaux.returncode != 0:
                       ret = 1
                 except Exception:
                     print(tcolors.WARNING+"psh: command not found: {}".format(cmd.strip())+tcolors.ENDC)
@@ -394,11 +454,38 @@ def path_formater(path):
         newpath = os.getcwd() + "/"+ newpath
     return newpath
 
+def login():
+    user = input("User: ")
+    #pwd = getpass.getpass(prompt="Contrasena: ")
+    #ret = subprocess.Popen(["su", "-", user, "&"])
+    ret = os.system("su - " + user + " &")
+    print(ret)
+    return ret
+
 
 def main():
+    username = getpass.getuser()
+
+    write_personal_horario_log("login",username)
+
+
+    print("""
+   __    ___  __ _          _ _ 
+  / /   / __\/ _\ |__   ___| | |
+ / /   / _\  \ \| '_ \ / _ \ | |
+/ /___/ /    _\ \ | | |  __/ | |
+\____/\/     \__/_| |_|\___|_|_|
+                                v1.0.9
+
+psh: shell implementation in Python3
+Creado por Lucas Martinez & Erik Wasmosy.
+
+Ejecute el comando ayuda para obtener mas informacion.    
+""")
     while True:
         inp = input(tcolors.BOLD+tcolors.OKGREEN+getpass.getuser()+tcolors.ENDC+tcolors.BOLD+":"+tcolors.OKBLUE+virgulilla_path()+tcolors.ENDC+"$ ")
         if inp == "exit" or inp == "salir":
+            write_personal_horario_log("logout", username)
             break
         elif inp == "cd":
             psh_cd(os.environ['HOME'])
@@ -438,11 +525,12 @@ def main():
             #para que no diga "comando no encontrado" cuando el usuario solamente presiona enter
             fghjlfkhjg = 1 #no hace nada, esta puesto para cumplir con la sintaxis de python
         else:
-           ret = execute_command(inp)
-           if ret == 0:
-             write_shell_log(inp)
-           else:
-             write_errores_sistema_log(inp)
+            ret = os.system(inp)
+            #ret = execute_command(inp)
+            if ret == 0:
+                write_shell_log(inp)
+            else:
+                write_errores_sistema_log(inp)
 
 
 if '__main__' == __name__:
