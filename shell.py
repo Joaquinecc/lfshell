@@ -12,6 +12,13 @@ import signal
 import socket
 from datetime import datetime
 
+
+# imports para el historial y autocompletado
+import readline
+import rlcompleter
+import atexit
+
+
 class tcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -302,13 +309,14 @@ def write_personal_horario_log(log_in_out, usr):
     f = open("/var/log/personal_horarios_log.log", "a")
     now = datetime.now().strftime("%H:%M")
     curr_ip = socket.gethostbyname(socket.gethostname())
-    usr_info = read_personal_h_log(usr).split(" ")
+    usr_info = read_personal_h_log(usr)
     if usr_info == "" or usr_info == "\n":
         if log_in_out == "login":
             f.write("[" + usr + "] " + now)
         else:
             f.write(now + "\n\n")
     else:
+        usr_info = usr_info.split(" ")
         h_entrada = int(usr_info[2].split("-")[0])
         h_salida = int(usr_info[2].split("-")[1])
         ips = usr_info[4].split(",")
@@ -337,6 +345,18 @@ def write_personal_horario_log(log_in_out, usr):
             f.write(info + "\n")
     f.close()
 
+
+def shell_autocomplete():
+    # tab completion
+    readline.parse_and_bind('tab: complete')
+    # history file
+    histfile = os.path.join(os.environ['HOME'], '.pythonhistory')
+    try:
+        readline.read_history_file(histfile)
+    except IOError:
+        pass
+    atexit.register(readline.write_history_file, histfile)
+    del os, histfile, readline, rlcompleter
 
 def execute_command(command):
     ret = 0
