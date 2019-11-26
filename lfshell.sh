@@ -1,1 +1,1 @@
-python3 shell.py
+python3 /lfshell/shell.py

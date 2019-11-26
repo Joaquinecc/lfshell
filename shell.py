@@ -18,6 +18,16 @@ import readline
 import rlcompleter
 import atexit
 
+welcomemsg = """
+   __    ___  __ _          _ _ 
+  / /   / __\/ _\ |__   ___| | |
+ / /   / _\  \ \| '_ \ / _ \ | |
+/ /___/ /    _\ \ | | |  __/ | |
+\____/\/     \__/_| |_|\___|_|_|
+                                v1.0.12
+
+psh: shell implementation in Python3
+Creado por Lucas Martinez & Erik Wasmosy."""
 
 class tcolors:
     HEADER = '\033[95m'
@@ -312,9 +322,9 @@ def write_personal_horario_log(log_in_out, usr):
     usr_info = read_personal_h_log(usr)
     if usr_info == "" or usr_info == "\n":
         if log_in_out == "login":
-            f.write("[" + usr + "] " + now)
+            f.write("[" + usr + "] Ip: " + curr_ip + " Horas: " + now)
         else:
-            f.write(now + "\n\n")
+            f.write(" --> "+now + "\n")
     else:
         usr_info = usr_info.split(" ")
         h_entrada = int(usr_info[2].split("-")[0])
@@ -333,15 +343,15 @@ def write_personal_horario_log(log_in_out, usr):
                 info = info + "(La Ip no coincide con su lista de IPs permitidas) "
 
             if h_entrada <= int_now <= h_salida:
-                info = info + "Horas: " + now + " "
+                info = info + "Horas: " + now
             else:
                 info = info + "Horas: " + now + " (Login fuera de horario) "
             f.write(info)
         else:
             if h_entrada <= int_now <= h_salida:
-                info = info + now
+                info = info +" --> "+ now
             else:
-                info = info + now + " (Logout fuera de horario)"
+                info = info +" --> " + now + " (Logout fuera de horario)"
             f.write(info + "\n")
     f.close()
 
@@ -421,16 +431,7 @@ def psh_cd(path):
 
 
 def psh_help():
-    print("""
-   __    ___  __ _          _ _ 
-  / /   / __\/ _\ |__   ___| | |
- / /   / _\  \ \| '_ \ / _ \ | |
-/ /___/ /    _\ \ | | |  __/ | |
-\____/\/     \__/_| |_|\___|_|_|
-                                v1.0.9
-
-psh: shell implementation in Python3
-Creado por Lucas Martinez & Erik Wasmosy.
+    print(welcomemsg + """
 Soporta todos los comandos basicos de un shell de UNIX
 Por ejemplo:
 cd                      ls
@@ -489,17 +490,7 @@ def main():
     write_personal_horario_log("login",username)
 
 
-    print("""
-   __    ___  __ _          _ _ 
-  / /   / __\/ _\ |__   ___| | |
- / /   / _\  \ \| '_ \ / _ \ | |
-/ /___/ /    _\ \ | | |  __/ | |
-\____/\/     \__/_| |_|\___|_|_|
-                                v1.0.9
-
-psh: shell implementation in Python3
-Creado por Lucas Martinez & Erik Wasmosy.
-
+    print(welcomemsg + """
 Ejecute el comando ayuda para obtener mas informacion.    
 """)
     while True:
@@ -545,6 +536,9 @@ Ejecute el comando ayuda para obtener mas informacion.
             #para que no diga "comando no encontrado" cuando el usuario solamente presiona enter
             fghjlfkhjg = 1 #no hace nada, esta puesto para cumplir con la sintaxis de python
         else:
+            if inp[:3] == "su " or inp[:9] == "shutdown ":
+                write_personal_horario_log("logout", username)
+
             ret = os.system(inp)
             #ret = execute_command(inp)
             if ret == 0:

@@ -17,7 +17,7 @@ Luego, debemos asegurarnos que el directorio /var/log/ sea accesible por el shel
 
 ### Archivos a crear:
 
-Como se ha mencionado antes, el LFShell registra logs en archivos en el directorio /var/log/ , por lo que para que este funcione correctamente debemos crear los siguientes archivos en dicho directorio: errores_sistema.log , shell_log.log , personal_h.log , personal_horarios_log.log , usuarios_datos.log , Shell_transferencias.log (tenga en cuenta que en este ultimo archivo la palabra Shell cuenta con una S mayuscula)<br/>
+Como se ha mencionado antes, el LFShell registra logs en archivos en el directorio /var/log/ , por lo que para que este funcione correctamente debemos crear los siguientes archivos en dicho directorio:<br/>errores_sistema.log , shell_log.log , personal_h.log , personal_horarios_log.log , usuarios_datos.log , Shell_transferencias.log (tenga en cuenta que en este ultimo archivo la palabra Shell cuenta con una S mayuscula)<br/>
 
 Los podemos crear con los siguientes comandos:<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sudo touch /var/log/errores_sistema.log<br/>
@@ -35,7 +35,7 @@ Si su sistema Linux cuenta con el comando 'git', entonces ejecute los siguientes
 En caso de no poseer el comando git, usted puede (desde otro sistema operativo) descargar el archivo ya sea directamente desde la web o con el comando git mencionado anteriormente y almacenarlo en un disco externo (por ejemplo un pendrive)<br/>
 Una vez que cuente con el archivo en su disco externo, puede montarlo en su sistema linux (en el cual desea instalar lfshell).<br/>
 Luego, falta simplemente copiar el archivo al directorio /, lo hacemos con el siguiente comando:<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sudo cp -r [UBICACION_DEL_DISCO_MONTADO] /<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sudo cp -r [UBICACION_DEL_ARCHVIVO_EN_EL_DISCO_MONTADO] /<br/>
 
 Segundo: Para instalar LFShell y que este funcione como shell en un sistema Linux es necesario agregarlo al archivo /etc/profile :<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sudo echo "bash /lfshell/lfshell.sh" >> /etc/profile<br/>
