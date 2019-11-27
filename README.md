@@ -28,7 +28,7 @@ Los podemos crear con los siguientes comandos:<br/>
 
 ## Instalacion
 
-Primero: Sescargar la carpeta lfshell ubicada en https://gitlab.com/martinezlucas98/lfshell.git.<br/>
+Primero: Descargar la carpeta lfshell ubicada en https://gitlab.com/martinezlucas98/lfshell.git.<br/>
 Si su sistema Linux cuenta con el comando 'git', entonces ejecute los siguientes comandos:<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sudo cd /<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sudo git clone https://gitlab.com/martinezlucas98/lfshell.git<br/>
