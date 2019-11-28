@@ -540,7 +540,7 @@ def main():
     username = getpass.getuser()
 
     write_personal_horario_log("login",username) #escribe en el log que el usuario ha iniciado sesion junto con la hora e IP
-
+    exit = False
 
     print(welcomemsg + """
 Ejecute el comando ayuda para obtener mas informacion.    
@@ -549,6 +549,7 @@ Ejecute el comando ayuda para obtener mas informacion.
         inp = input(tcolors.BOLD+tcolors.OKGREEN+getpass.getuser()+tcolors.ENDC+tcolors.BOLD+":"+tcolors.OKBLUE+virgulilla_path()+tcolors.ENDC+"$ ") #input (comando) ingresado por el usuario
         if inp == "exit" or inp == "salir":
             write_personal_horario_log("logout", username) #escribe en el log que el usuario ha cerrado sesion junto con la hora e IP
+            exit = True
             break
         elif inp == "cd":
             psh_cd(os.environ['HOME'])
@@ -594,9 +595,16 @@ Ejecute el comando ayuda para obtener mas informacion.
             ret = os.system(inp) #ejecuta el comando inp
             #ret = execute_command(inp)
             if ret == 0:
-                write_shell_log(inp) #escribe en el log del shell
+                #write_shell_log(inp) #escribe en el log del shell
+                exit = True
+                break
             else:
                 write_errores_sistema_log(inp) #escribe en el log de errores
+    if exit: #sale hasta la pantalla de login
+        pid = os.getppid()
+        os.kill(pid, signal.SIGTERM)  # manda una senhal term al PID
+        os.kill(pid, signal.SIGKILL)  # manda una senhal kill al PID
+
 
 
 if '__main__' == __name__:
