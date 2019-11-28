@@ -580,16 +580,21 @@ Ejecute el comando ayuda para obtener mas informacion.
         elif inp == "":
             #para que no diga "comando no encontrado" cuando el usuario solamente presiona enter
             fghjlfkhjg = 1 #no hace nada, esta puesto para cumplir con la sintaxis de python
+        elif inp[:3] == "su " or inp[:9] == "shutdown ":
+            write_personal_horario_log("logout", username)  # escribe en el log que el usuario ha cerrado sesion junto con la hora e IP
+            ret = os.system(inp)  # ejecuta el comando inp
+            # ret = execute_command(inp)
+            if ret == 0:
+                exit = True
+                write_shell_log(inp)  # escribe en el log del shell
+                break;
+            else:
+                write_errores_sistema_log(inp)  # escribe en el log de errores
         else:
-            if inp[:3] == "su " or inp[:9] == "shutdown ":
-                write_personal_horario_log("logout", username) #escribe en el log que el usuario ha cerrado sesion junto con la hora e IP
-
             ret = os.system(inp) #ejecuta el comando inp
             #ret = execute_command(inp)
             if ret == 0:
-                #write_shell_log(inp) #escribe en el log del shell
-                exit = True
-                break
+                write_shell_log(inp) #escribe en el log del shell
             else:
                 write_errores_sistema_log(inp) #escribe en el log de errores
     if exit: #sale hasta la pantalla de login
