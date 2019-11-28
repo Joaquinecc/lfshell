@@ -87,7 +87,7 @@ Mueve el archivo o directorio especificado en <PATH_ARCHIVO> a <PATH_DESTINO>
         msg_ok = inp #mensaje para escribir en el log del shell si se ejecuto correctamente el comando
         msg_err = "mover: no existe el archivo o directorio: " + inp.replace("mover", "", 1) #mensaje para escribir en el log de errores si NO se ejecuto correctamente el comando
         inp = inp.replace("mover", "mv", 1) #formateamos el input para que coincida con el comando original mv
-        ret = execute_command(inp) #se realiza mv
+        ret = os.system(inp) #se realiza mv
         if ret == 0:
             write_shell_log(msg_ok) #escribe en el log del shell
         else:
@@ -104,7 +104,7 @@ Renombra el archivo o directorio especificado en <PATH_ARCHIVO> a <NUEVO_NOMBRE>
         msg_ok = inp #mensaje para escribir en el log del shell si se ejecuto correctamente el comando
         msg_err = "renombrar: no existe el archivo o directorio: "+ inp.replace("renombrar", "", 1) #mensaje para escribir en el log de errores si NO se ejecuto correctamente el comando
         inp = inp.replace("renombrar", "mv", 1) #formateamos el input para que coincida con el comando original mv
-        ret = execute_command(inp) #se realiza mv
+        ret = os.system(inp) #se realiza mv
         if ret == 0:
             write_shell_log(msg_ok) #escribe en el log del shell
         else:
@@ -143,7 +143,8 @@ Crea un nuevo directorio <PATH_DIRECTORIO>
         msg_ok = inp #mensaje para escribir en el log del shell si se ejecuto correctamente el comando
         msg_err = "creardir: el directorio ya existe: "+ inp.replace("creardir", "", 1) #mensaje para escribir en el log de errores si NO se ejecuto correctamente el comando
         inp = inp.replace("creardir", "mkdir", 1) #formateamos el input para que coincida con el comando original mkdir
-        ret = execute_command(inp) #se realiza mkdir
+        #ret = os.system(inp)
+        ret = os.system(inp) #se realiza mkdir
         if ret == 0:
             write_shell_log(msg_ok) #escribe en el log del shell
         else:
@@ -173,13 +174,15 @@ Cambia el directorio donde se encuentra al directorio <PATH_DIRECTORIO>
 def psh_permisos(inp): #inp es el input (comando completo) que recibe
     if inp == "permisos --ayuda":
         print("""Uso: permisos <PERMISOS>[,<PERMISOS>]... <ARCHIVO>...
+permisos -R <PERMISOS>[,<PERMISOS>]... <ARCHIVO>...
 Cambia los permisos de cada archivo <ARCHIVO> a <PERMISOS>
+La opcion -R : cambia de forma recursiva los permisos de los archivos contenido dentro del directorio 
 """)
     else:
         msg_ok = inp #mensaje para escribir en el log del shell si se ejecuto correctamente el comando
         msg_err = "permisos: ha ocurrido un error: " + inp #mensaje para escribir en el log de errores si NO se ejecuto correctamente el comando
         inp = inp.replace("permisos", "chmod", 1) #formateamos el input para que coincida con el comando original chmod
-        ret = execute_command(inp) #se realiza chmod
+        ret = os.system(inp) #se realiza chmod
         if ret == 0:
             write_shell_log(msg_ok) #escribe en el log del shell
         else:
@@ -190,13 +193,15 @@ Cambia los permisos de cada archivo <ARCHIVO> a <PERMISOS>
 def psh_propietario(inp): #inp es el input (comando completo) que recibe
     if inp == "propietario --ayuda":
         print("""Uso: propietario <PROPIETARIO_O_GRUPO> <ARCHIVO>...
+propietario -R <PROPIETARIO_O_GRUPO> <ARCHIVO>...
 Cambia el propietario o grupo de cada archivo <ARCHIVO> a <Propietario_O_GRUPO>
+La opcion -R : cambia de forma recursiva el propietario de los archivos contenido dentro del directorio 
 """)
     else:
         msg_ok = inp #mensaje para escribir en el log del shell si se ejecuto correctamente el comando
         msg_err = "propietario: ha ocurrido un error: " + inp #mensaje para escribir en el log de errores si NO se ejecuto correctamente el comando
         inp = inp.replace("propietario", "chown", 1) #formateamos el input para que coincida con el comando original chown
-        ret = execute_command(inp) #se realiza chown
+        ret = os.system(inp) #se realiza chown
         if ret == 0:
             write_shell_log(msg_ok) #escribe en el log del shell
         else:
@@ -213,7 +218,7 @@ Cambia la contrasenha del usuario actual
         msg_ok = inp #mensaje para escribir en el log del shell si se ejecuto correctamente el comando
         msg_err = "contrasena: ha ocurrido un error" #mensaje para escribir en el log de errores si NO se ejecuto correctamente el comando
         inp = inp.replace("contrasena", "passwd", 1) #formateamos el input para que coincida con el comando original passwd
-        ret = execute_command(inp) #se realiza passwd
+        ret = os.system(inp) #se realiza passwd
         if ret == 0:
             write_shell_log(msg_ok) #escribe en el log del shell
         else:
@@ -242,7 +247,7 @@ Agrega un usuario nuevo con horario y una o mas ip de acceso
         #inp = "useradd -c " + "\"Horario " + inp_arr[1].replace(":", "") +"-"+ inp_arr[2].replace(":", "") + " IPs " + conjunto_ip + "\" " + inp_arr[nip]
         inp = "useradd " + inp_arr[nip]
         ret = os.system(inp) #se realiza useradd
-        #ret = execute_command(inp)
+        #ret = os.system(inp)
         if ret == 0:
             personal_h = inp_arr[nip]+" Horario " + inp_arr[1].replace(":", "") + "-" + inp_arr[2].replace(":","") + " IPs " + conjunto_ip #string con los horarios e IPs del usuario
             write_personal_h_log(personal_h) #escribe los horarios e IPs del usuario en un log
@@ -276,11 +281,7 @@ El segundo: termina el proceso con PID <PID>.
                 pid = int(action_pid[7:]) #el PID deseado
                 os.kill(pid, signal.SIGTERM) #manda una senhal term al PID
                 os.kill(pid, signal.SIGKILL) #manda una senhal kill al PID
-                ret = subprocess.Popen(params_arr)  # levanta demonio
-                if ret == 0:
-                    write_shell_log(msg_ok)  # escribe en el log del shell
-                else:
-                    write_errores_sistema_log("Error: demonio " + action_pid)  # escribe en el log de errores
+                write_shell_log(msg_ok)  # escribe en el log del shell
 
             else:
                 print(tcolors.WARNING + "demonio: accion no encontrada: "+action_pid.split(" ", 1)[0] + tcolors.ENDC)
@@ -294,15 +295,20 @@ El segundo: termina el proceso con PID <PID>.
 def psh_scp_ftp(inp): #inp es el input (comando completo) que recibe
     params = inp[4:] #string con los parametros del comando scp o ftp
     command = inp[:3] #string: el comando scp o ftp
-    try:
-        ret = subprocess.Popen([command, params]) #se realiza el comando (ftp o scp)
-        if ret == 0:
-            write_shell_transferencias_log(inp)  # escribe en el log de transferencias
-            write_shell_log(inp)
-        else:
-            write_errores_sistema_log("Error: " + inp)
-    except Exception as e:
-        write_errores_sistema_log(e) #escribe en el log de errores
+    if params == "--ayuda":
+        print("Uso: "+command+""" <PARAMS>
+Ejecuta una transferencia """+command+""" de <PARAMS>
+""")
+    else:
+        try:
+            ret = subprocess.Popen([command, params]) #se realiza el comando (ftp o scp)
+            if ret == 0:
+                write_shell_transferencias_log(inp)  # escribe en el log de transferencias
+                write_shell_log(inp)
+            else:
+                write_errores_sistema_log("Error: " + inp)
+        except Exception as e:
+            write_errores_sistema_log(e) #escribe en el log de errores
 
 #FUNCIONES PARA LA LECTURA Y ESCRITURA DE LOS LOGS
 
