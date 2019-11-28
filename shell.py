@@ -8,7 +8,6 @@ import subprocess
 import getpass
 import shutil
 import itertools
-#import daemon
 import signal
 import socket
 from datetime import datetime
@@ -26,7 +25,7 @@ welcomemsg = """
  / /   / _\  \ \| '_ \ / _ \ | |
 / /___/ /    _\ \ | | |  __/ | |
 \____/\/     \__/_| |_|\___|_|_|
-                                v1.0.12
+                                v1.1.1
 
 psh: shell implementation in Python3
 Creado por Lucas Martinez & Erik Wasmosy."""
@@ -143,7 +142,6 @@ Crea un nuevo directorio <PATH_DIRECTORIO>
         msg_ok = inp #mensaje para escribir en el log del shell si se ejecuto correctamente el comando
         msg_err = "creardir: el directorio ya existe: "+ inp.replace("creardir", "", 1) #mensaje para escribir en el log de errores si NO se ejecuto correctamente el comando
         inp = inp.replace("creardir", "mkdir", 1) #formateamos el input para que coincida con el comando original mkdir
-        #ret = os.system(inp)
         ret = os.system(inp) #se realiza mkdir
         if ret == 0:
             write_shell_log(msg_ok) #escribe en el log del shell
@@ -194,7 +192,7 @@ def psh_propietario(inp): #inp es el input (comando completo) que recibe
     if inp == "propietario --ayuda":
         print("""Uso: propietario <PROPIETARIO_O_GRUPO> <ARCHIVO>...
 propietario -R <PROPIETARIO_O_GRUPO> <ARCHIVO>...
-Cambia el propietario o grupo de cada archivo <ARCHIVO> a <Propietario_O_GRUPO>
+Cambia el propietario o grupo de cada archivo <ARCHIVO> a <PROPIETARIO_O_GRUPO>
 La opcion -R : cambia de forma recursiva el propietario de los archivos contenido dentro del directorio 
 """)
     else:
@@ -270,7 +268,6 @@ El segundo: termina el proceso con PID <PID>.
             if action_pid[:9] == "levantar ":
                 params = action_pid[9:] #el commando para ejecutar como demonio (en background)
                 params_arr = params.split(" ") #separa el string de los comandos en una lista
-                #with daemon.DaemonContext():
                 ret = subprocess.Popen(params_arr) #levanta demonio
                 if ret == 0:
                     write_shell_log(msg_ok) #escribe en el log del shell
@@ -414,67 +411,12 @@ def shell_autocomplete():
     del os, histfile, readline, rlcompleter
 
 
-#FUNCIONES PARA LA EJECUCION DE COMANDOS GENERALES
-
-#ejecuta con subprocess el comando dado
-def execute_command(command): #command: el comando que se quiere ejecutar
-    ret = 0
-    """execute commands and handle piping"""
-    try:
-        if "|" in command:
-            # guardamos copia para restaurar mas tarde
-            s_in, s_out = (0, 0)
-            s_in = os.dup(0)
-            s_out = os.dup(1)
-
-            # el primer comando toma commandut de stdin
-            fdin = os.dup(s_in)
-
-            # iterar todos los comandos en los que hay pipe
-            for cmd in command.split("|"):
-                # fdin va a ser stdin si es la primera iteracion
-                # y la parte final del pipe si no.
-                os.dup2(fdin, 0)
-                os.close(fdin)
-
-                # restaurar stdout si este es el ultimo comando
-                if cmd == command.split("|")[-1]:
-                    fdout = os.dup(s_out)
-                else:
-                    fdin, fdout = os.pipe()
-
-                # redireccionar stdout al pipe
-                os.dup2(fdout, 1)
-                os.close(fdout)
-
-                try:
-                    retaux = subprocess.run(cmd.strip().split())
-                    if retaux.returncode != 0:
-                      ret = 1
-                except Exception:
-                    print(tcolors.WARNING+"psh: command not found: {}".format(cmd.strip())+tcolors.ENDC)
-                    ret = 1
-
-            # restaurar stdout y stdin
-            os.dup2(s_in, 0)
-            os.dup2(s_out, 1)
-            os.close(s_in)
-            os.close(s_out)
-        else:
-            retaux = subprocess.run(command.split(" "))
-            if retaux.returncode != 0:
-              ret = 1
-
-    except Exception:
-        print(tcolors.WARNING+"psh: command not found: {}".format(command)+tcolors.ENDC)
-        ret = 1
-    return ret
-
 
 #cambia de directorio mediante el comando cd (similar a la funcion psh_ir)
 def psh_cd(path): #path es el path al directorio al cual vamos a cambiar
     """convert to absolute path and change directory"""
     try:
+        path = path_formater(path)
         os.chdir(os.path.abspath(path)) #cambia de direcotrio
     except Exception:
         print(tcolors.WARNING+"cd: no such file or directory: {}".format(path)+tcolors.ENDC)
@@ -589,7 +531,6 @@ Ejecute el comando ayuda para obtener mas informacion.
         elif inp[:3] == "su " or inp[:9] == "shutdown ":
             write_personal_horario_log("logout", username)  # escribe en el log que el usuario ha cerrado sesion junto con la hora e IP
             ret = os.system(inp)  # ejecuta el comando inp
-            # ret = execute_command(inp)
             if ret == 0:
                 exit = True
                 write_shell_log(inp)  # escribe en el log del shell
@@ -598,7 +539,6 @@ Ejecute el comando ayuda para obtener mas informacion.
                 write_errores_sistema_log(inp)  # escribe en el log de errores
         else:
             ret = os.system(inp) #ejecuta el comando inp
-            #ret = execute_command(inp)
             if ret == 0:
                 write_shell_log(inp) #escribe en el log del shell
             else:
