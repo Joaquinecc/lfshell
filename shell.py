@@ -12,6 +12,7 @@ import itertools
 import signal
 import socket
 from datetime import datetime
+from subprocess import check_output
 
 
 #imports para el historial y autocompletado
@@ -64,7 +65,7 @@ Copia el archivo o directorio especificado en <PATH_ARCHIVO> en <PATH_DESTINO>
             write_shell_log(msg_ok) #escribimos en el historial
         except Exception:
             try: #si no se pudo, puede que sea un directorio entonces prueba copiar el directorio
-                if os.path.isdir(dst):
+                if os.path.isdir(dst): #si no se especifica el nombre con el que se va ancopiar entonces le agrega el nombre original
                     name = src.rsplit("/", 1)
                     dst = dst + "/" + name[1]
                 shutil.copytree(src, dst)
@@ -525,15 +526,6 @@ def path_formater(path):
     return newpath
 
 
-
-#def login():
-    #user = input("User: ")
-    #pwd = getpass.getpass(prompt="Contrasena: ")
-    #ret = subprocess.Popen(["su", "-", user, "&"])
-    #ret = os.system("su - " + user + " &")
-    #print(ret)
-    #return ret
-
 #FUNCION MAIN
 
 def main():
@@ -601,9 +593,7 @@ Ejecute el comando ayuda para obtener mas informacion.
             else:
                 write_errores_sistema_log(inp) #escribe en el log de errores
     if exit: #sale hasta la pantalla de login
-        pid = os.getppid()
-        os.kill(pid, signal.SIGTERM)  # manda una senhal term al PID
-        os.kill(pid, signal.SIGKILL)  # manda una senhal kill al PID
+        os.system("fuser -k "+ os.ttyname(1)) #kill todos los procesos del tty actual
 
 
 
