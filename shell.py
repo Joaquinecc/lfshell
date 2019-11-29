@@ -302,7 +302,8 @@ Ejecuta una transferencia """+command+""" de <PARAMS>
 """)
     else:
         try:
-            ret = subprocess.Popen([command, params]) #se realiza el comando (ftp o scp)
+            myArr = inp.split(" ")
+            ret = subprocess.Popen(myArr) #se realiza el comando (ftp o scp)
             if ret == 0:
                 write_shell_transferencias_log(inp)  # escribe en el log de transferencias
                 write_shell_log(inp)
