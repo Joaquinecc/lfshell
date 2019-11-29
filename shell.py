@@ -234,24 +234,28 @@ Agrega un usuario nuevo con horario y una o mas ip de acceso
         msg_ok = inp #mensaje para escribir en el log del shell si se ejecuto correctamente el comando
         msg_err = "usuario: ha ocurrido un error" #mensaje para escribir en el log de errores si NO se ejecuto correctamente el comando
         inp_arr = inp.split(" ")
-        #luego de separar el string : inp_arr[0] = usuario ; inp_arr[1] = hora inicio ;
-        #la variable inp_arr[2] = hora de salida; inp_arr[3]... = las IPs ; inp_arr[N] = el nombre del usuario
-        nip = len(inp_arr) - 1
-        conjunto_ip = "" #string para almacenar las ip permitidas del usuario
-        for ip in range(3,nip):
-            conjunto_ip = conjunto_ip + inp_arr[ip] +","
-        conjunto_ip = conjunto_ip[:-1]
-        #da el formato adecuado al inp
-        #inp = "useradd -c " + "\"Horario " + inp_arr[1].replace(":", "") +"-"+ inp_arr[2].replace(":", "") + " IPs " + conjunto_ip + "\" " + inp_arr[nip]
-        inp = "useradd " + inp_arr[nip]
-        ret = os.system(inp) #se realiza useradd
-        #ret = os.system(inp)
-        if ret == 0:
-            personal_h = inp_arr[nip]+" Horario " + inp_arr[1].replace(":", "") + "-" + inp_arr[2].replace(":","") + " IPs " + conjunto_ip #string con los horarios e IPs del usuario
-            write_personal_h_log(personal_h) #escribe los horarios e IPs del usuario en un log
-            write_shell_log(msg_ok) #escribe en el log del shell
+        if len(inp_arr) == 5:
+            #luego de separar el string : inp_arr[0] = usuario ; inp_arr[1] = hora inicio ;
+            #la variable inp_arr[2] = hora de salida; inp_arr[3]... = las IPs ; inp_arr[N] = el nombre del usuario
+            nip = len(inp_arr) - 1
+            conjunto_ip = "" #string para almacenar las ip permitidas del usuario
+            for ip in range(3,nip):
+                conjunto_ip = conjunto_ip + inp_arr[ip] +","
+            conjunto_ip = conjunto_ip[:-1]
+            #da el formato adecuado al inp
+            #inp = "useradd -c " + "\"Horario " + inp_arr[1].replace(":", "") +"-"+ inp_arr[2].replace(":", "") + " IPs " + conjunto_ip + "\" " + inp_arr[nip]
+            inp = "useradd " + inp_arr[nip]
+            ret = os.system(inp) #se realiza useradd
+            #ret = os.system(inp)
+            if ret == 0:
+                personal_h = inp_arr[nip]+" Horario " + inp_arr[1].replace(":", "") + "-" + inp_arr[2].replace(":","") + " IPs " + conjunto_ip #string con los horarios e IPs del usuario
+                write_personal_h_log(personal_h) #escribe los horarios e IPs del usuario en un log
+                write_shell_log(msg_ok) #escribe en el log del shell
+            else:
+                write_errores_sistema_log(msg_err) #escribe en el log de errores
         else:
-            write_errores_sistema_log(msg_err) #escribe en el log de errores
+            print("usuario: formato ioncorrecto")
+            write_errores_sistema_log(msg_err)  # escribe en el log de errores
 
 
 #11 levantar y apagar demonios (sin usar la llamada al sistema: service)
