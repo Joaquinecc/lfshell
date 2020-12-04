@@ -31,10 +31,10 @@ Luego, debemos asegurarnos que el directorio /var/log , y los archivos contenido
 
 ## Instalacion
 
-Primero: Descargar la carpeta lfshell ubicada en https://gitlab.com/martinezlucas98/lfshell.git.<br/>
+Primero: Descargar la carpeta lfshell ubicada en https://github.com/martinezlucas98/lfshell.git.<br/>
 Si su sistema Linux cuenta con el comando 'git', entonces ejecute los siguientes comandos:<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sudo cd /<br/>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sudo git clone https://gitlab.com/martinezlucas98/lfshell.git<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sudo git clone https://github.com/martinezlucas98/lfshell.git<br/>
 En caso de no poseer el comando git, usted puede (desde otro sistema operativo) descargar el archivo ya sea directamente desde la web o con el comando git mencionado anteriormente y almacenarlo en un disco externo (por ejemplo un pendrive)<br/>
 Una vez que cuente con el archivo en su disco externo, puede montarlo en su sistema Linux (en el cual desea instalar lfshell).<br/>
 Una vez montado, falta simplemente copiar el archivo al directorio /, lo hacemos con el siguiente comando:<br/>
