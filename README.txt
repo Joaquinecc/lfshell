@@ -42,10 +42,10 @@ Cambiaremos sus permisos con el siguiente comando:
 
 Instalacion
 
-Primero: Descargar la carpeta lfshell ubicada en https://gitlab.com/martinezlucas98/lfshell.git
+Primero: Descargar la carpeta lfshell ubicada en https://github.com/martinezlucas98/lfshell.git
 Si su sistema Linux cuenta con el comando 'git', entonces ejecute los siguientes comandos:
 	sudo cd /
-	sudo git clone https://gitlab.com/martinezlucas98/lfshell.git
+	sudo git clone https://github.com/martinezlucas98/lfshell.git
 
 En caso de no poseer el comando git, usted puede (desde otro sistema operativo) descargar el archivo 
 ya sea directamente desde la web o con el comando git mencionado anteriormente y almacenarlo en un 
